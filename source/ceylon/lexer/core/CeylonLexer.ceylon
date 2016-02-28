@@ -63,8 +63,9 @@ shared class CeylonLexer(CharacterStream characters)
      (There is no `EOF` token.)"
     shared actual Token? nextToken() {
         while (characters.peek() != terminator) {
-            variable Character next;
-            switch (next = characters.peek())
+            variable Character next = characters.peek();
+            // workaround https://github.com/ceylon/ceylon/issues/6054
+            switch (_ = next)
             case ('/') {
                 // start of comment?
                 switch (characters.peek(1))
@@ -155,7 +156,8 @@ shared class CeylonLexer(CharacterStream characters)
                 return token(binaryLiteral, text.string);
             }
             case ('\\') {
-                switch (next = characters.peek(1))
+                next = characters.peek(1);
+                switch (next)
                 case ('i') {
                     // forced lowercase identifier
                     characters.consume(2);
@@ -319,7 +321,8 @@ shared class CeylonLexer(CharacterStream characters)
                     text.appendCharacter(next);
                     characters.consume();
                 }
-                switch (next = characters.peek())
+                next = characters.peek();
+                switch (next)
                 case ('.') {
                     // could be a float literal or a qualified expression
                     if ('0' <= characters.peek(1) <= '9'
@@ -333,7 +336,8 @@ shared class CeylonLexer(CharacterStream characters)
                             characters.consume();
                         }
                         // might also have an exponent or magnitude
-                        switch (next = characters.peek())
+                        next = characters.peek();
+                        switch (next)
                         case ('E' | 'e') {
                             // exponent
                             text.appendCharacter(next);
